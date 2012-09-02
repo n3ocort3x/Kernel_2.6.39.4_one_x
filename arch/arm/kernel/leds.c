@@ -9,9 +9,9 @@
  */
 #include <linux/module.h>
 #include <linux/init.h>
-#include <linux/sysdev.h>
 #include <linux/notifier.h>
 #include <linux/cpu.h>
+#include <linux/sysdev.h>
 
 #include <asm/leds.h>
 
@@ -104,20 +104,20 @@ static struct sys_device leds_device = {
 static int leds_idle_notifier(struct notifier_block *nb, unsigned long val,
                                 void *data)
 {
-  switch (val) {
-  case IDLE_START:
-    leds_event(led_idle_start);
-    break;
-  case IDLE_END:
-    leds_event(led_idle_end);
-    break;
-  }
+	switch (val) {
+	case IDLE_START:
+		leds_event(led_idle_start);
+		break;
+	case IDLE_END:
+		leds_event(led_idle_end);
+		break;
+	}
 
-  return 0;
+	return 0;
 }
 
 static struct notifier_block leds_idle_nb = {
-  .notifier_call = leds_idle_notifier,
+	.notifier_call = leds_idle_notifier,
 };
 
 static int __init leds_init(void)
@@ -128,8 +128,9 @@ static int __init leds_init(void)
 		ret = sysdev_register(&leds_device);
 	if (ret == 0)
 		ret = sysdev_create_file(&leds_device, &attr_event);
-        if (ret == 0)
-                idle_notifier_register(&leds_idle_nb);
+	if (ret == 0)
+		idle_notifier_register(&leds_idle_nb);
+
 	return ret;
 }
 
