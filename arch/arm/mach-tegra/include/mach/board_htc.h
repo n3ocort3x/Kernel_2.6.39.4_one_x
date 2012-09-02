@@ -119,7 +119,6 @@ extern unsigned long tegra_bootloader_panel_msb;
 
 extern const int htc_get_pcbid_info(void);
 const bool is_modem_rework_phase(void);
-
 enum {
 	PROJECT_PHASE_INVALID = -2,
 	PROJECT_PHASE_EVM = -1,
