@@ -337,7 +337,6 @@ static void tegra3_idle_enter_lp2_cpu_n(struct cpuidle_device *dev,
 	bool sleep_completed = false;
 	struct tick_sched *ts = tick_get_tick_sched(dev->cpu);
 #ifdef CONFIG_TEGRA_LP2_ARM_TWD
-
 	if (!tegra_twd_get_state(&twd_context)) {
 		unsigned long twd_rate = clk_get_rate(twd_clk);
 
@@ -351,11 +350,12 @@ static void tegra3_idle_enter_lp2_cpu_n(struct cpuidle_device *dev,
 				writel(twd_context.twd_cnt,
 					twd_base + TWD_TIMER_COUNTER);
 			}
-		#endif
+#endif
 		}
 	}
+
 	if (!tegra_is_lp2_timer_ready(dev->cpu) ||
-		(request < state->target_residency) ||
+	    (request < state->target_residency) ||
 		(!ts) || (ts->nohz_mode == NOHZ_MODE_INACTIVE)) {
 		/*
 		 * Not enough time left to enter LP2, or wake timer not ready
@@ -363,14 +363,13 @@ static void tegra3_idle_enter_lp2_cpu_n(struct cpuidle_device *dev,
 		tegra3_lp3_fall_back(dev);
 		return;
 	}
+
 #ifndef CONFIG_TEGRA_LP2_ARM_TWD
 	sleep_time = request - state->exit_latency;
 	clockevents_notify(CLOCK_EVT_NOTIFY_BROADCAST_ENTER, &dev->cpu);
 	tegra_twd_suspend(&twd_context);
 	tegra_lp2_set_trigger(sleep_time);
 #endif
-
-
 	idle_stats.tear_down_count[cpu_number(dev->cpu)]++;
 
 	trace_power_start(POWER_CSTATE, 2, dev->cpu);
@@ -386,14 +385,13 @@ static void tegra3_idle_enter_lp2_cpu_n(struct cpuidle_device *dev,
 	tegra_cpu_wake_by_time[dev->cpu] = LLONG_MAX;
 
 #ifdef CONFIG_TEGRA_LP2_ARM_TWD
-
 	if (!tegra_twd_get_state(&twd_context))
 		sleep_completed = (twd_context.twd_cnt == 0);
 #else
- sleep_completed = !tegra_lp2_timer_remain();
- tegra_lp2_set_trigger(0);
- tegra_twd_resume(&twd_context);
- clockevents_notify(CLOCK_EVT_NOTIFY_BROADCAST_EXIT, &dev->cpu);
+	sleep_completed = !tegra_lp2_timer_remain();
+	tegra_lp2_set_trigger(0);
+	tegra_twd_resume(&twd_context);
+	clockevents_notify(CLOCK_EVT_NOTIFY_BROADCAST_EXIT, &dev->cpu);
 #endif
 	sleep_time = ktime_to_us(ktime_sub(ktime_get(), entry_time));
 	idle_stats.in_lp2_time[cpu_number(dev->cpu)] += sleep_time;
